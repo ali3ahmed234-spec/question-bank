@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - بنك الأسئلة</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header><h1>بنك الأسئلة</h1></header>
+  <main>
+    <div class="card">
+      <h2>تسجيل الدخول</h2>
+      <form id="loginForm">
+        <label for="studentId">الرقم الجامعي (ID)</label>
+        <input id="studentId" type="text" required placeholder="مثال: 1001">
+
+        <label for="studentName">الاسم</label>
+        <input id="studentName" type="text" required placeholder="اكتب اسمك الكامل">
+
+        <button class="btn" type="submit" id="loginBtn">دخول</button>
+        <div id="msg" class="msg error"></div>
+      </form>
+      <p class="muted" style="margin-top:18px"><a href="admin.html">صفحة الأدمن</a></p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('loginBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.classList.remove('show');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: document.getElementById('studentId').value.trim(),
+            name: document.getElementById('studentName').value.trim()
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'بيانات الدخول غير صحيحة');
+        localStorage.setItem('student', JSON.stringify(data.student));
+        window.location.href = 'selection.html';
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.classList.add('show');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
